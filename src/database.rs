@@ -34,6 +34,18 @@ pub(crate) async fn add(pool: &SqlitePool, key: &str, password: &str) -> anyhow:
     Ok(id)
 }
 
+pub(crate) async fn find_by_key(pool: &SqlitePool, key: &str) -> anyhow::Result<String> {
+    let record = sqlx::query!(
+        r#"
+            SELECT password FROM passwords WHERE key = ?
+        "#,
+        key
+    ).fetch_one(pool)
+    .await?;
+
+    Ok(record.password)
+}
+
 pub(crate) async fn delete(pool: &SqlitePool, key: &str) -> anyhow::Result<()> {
     let mut conn = pool.acquire().await?;
     let _ = sqlx::query!(
