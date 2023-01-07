@@ -3,6 +3,7 @@ use std::env;
 use sqlx::sqlite::{SqlitePool};
 use structopt::StructOpt;
 use std::io;
+use cli_clipboard::{ClipboardContext, ClipboardProvider};
 
 pub(crate) mod database;
 
@@ -16,6 +17,7 @@ struct Args {
 enum Command {
     List,
     Add { key: String },
+    Copy { key: String },
     Delete { key: String },
 }
 
@@ -34,6 +36,12 @@ async fn main() -> anyhow::Result<()> {
             let password = read_buffer();
             database::add(&pool, &key, &password).await?;
             println!("「{}」 is added!", key);
+        }
+        Some(Command::Copy { key }) => {
+            let password = database::find_by_key(&pool, &key).await?;
+            let mut ctx = ClipboardContext::new().unwrap();
+            ctx.set_contents(password.to_owned()).unwrap();
+            println!("「{}」 is copied!", key);
         }
         Some(Command::Delete { key }) => {
             database::delete(&pool, &key).await?;
