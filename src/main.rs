@@ -2,6 +2,7 @@ use dotenvy::dotenv;
 use std::env;
 use sqlx::sqlite::{SqlitePool};
 use structopt::StructOpt;
+use std::io;
 
 pub(crate) mod database;
 
@@ -14,8 +15,8 @@ struct Args {
 #[derive(StructOpt)]
 enum Command {
     List,
-    Add { password: String, description: String },
-    Delete { description: String },
+    Add { key: String },
+    Delete { key: String },
 }
 
 #[tokio::main]
@@ -29,16 +30,25 @@ async fn main() -> anyhow::Result<()> {
         Some(Command::List) => {
             database::lists(&pool).await?;
         }
-        Some(Command::Add { password, description}) => {
-            database::add(&pool, &password, &description).await?;
-            println!("「{}」 is added!", description);
+        Some(Command::Add { key }) => {
+            let password = read_buffer();
+            database::add(&pool, &key, &password).await?;
+            println!("「{}」 is added!", key);
         }
-        Some(Command::Delete { description }) => {
-            database::delete(&pool, &description).await?;
-            println!("「{}」 is deleted!", description);
+        Some(Command::Delete { key }) => {
+            database::delete(&pool, &key).await?;
+            println!("「{}」 is deleted!", key);
         }
         None => println!("Set arguments."),
     }
 
     Ok(())
+}
+
+fn read_buffer() -> String {
+    println!("> Enter the password.");
+
+    let mut buffer = String::new();
+    io::stdin().read_line(&mut buffer).expect("Failed to read line.");
+    return buffer.trim().to_string();
 }
