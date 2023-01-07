@@ -2,10 +2,10 @@ use dotenvy::dotenv;
 use std::env;
 use sqlx::sqlite::{SqlitePool};
 use structopt::StructOpt;
-use std::io;
-use cli_clipboard::{ClipboardContext, ClipboardProvider};
 
 pub(crate) mod database;
+pub(crate) mod user_interface;
+pub(crate) mod clipboard;
 
 #[derive(StructOpt)]
 struct Args {
@@ -34,14 +34,13 @@ async fn main() -> anyhow::Result<()> {
             database::lists(&pool).await?;
         }
         Some(Command::Add { key }) => {
-            let password = read_buffer();
+            let password = user_interface::read_buffer(String::from("Enter the password."));
             database::add(&pool, &key, &password).await?;
             println!("「{}」 is added!", key);
         }
         Some(Command::Copy { key }) => {
             let password = database::find_by_key(&pool, &key).await?;
-            let mut ctx = ClipboardContext::new().unwrap();
-            ctx.set_contents(password.to_owned()).unwrap();
+            clipboard::copy(password);
             println!("「{}」 is copied!", key);
         }
         Some(Command::Delete { key }) => {
@@ -56,12 +55,4 @@ async fn main() -> anyhow::Result<()> {
     }
 
     Ok(())
-}
-
-fn read_buffer() -> String {
-    println!("> Enter the password.");
-
-    let mut buffer = String::new();
-    io::stdin().read_line(&mut buffer).expect("Failed to read line.");
-    return buffer.trim().to_string();
 }
