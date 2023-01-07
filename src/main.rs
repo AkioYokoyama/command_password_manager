@@ -2,10 +2,10 @@ use dotenvy::dotenv;
 use std::env;
 use sqlx::sqlite::{SqlitePool};
 use structopt::StructOpt;
-use cli_clipboard::{ClipboardContext, ClipboardProvider};
 
 pub(crate) mod database;
 pub(crate) mod user_interface;
+pub(crate) mod clipboard;
 
 #[derive(StructOpt)]
 struct Args {
@@ -40,8 +40,7 @@ async fn main() -> anyhow::Result<()> {
         }
         Some(Command::Copy { key }) => {
             let password = database::find_by_key(&pool, &key).await?;
-            let mut ctx = ClipboardContext::new().unwrap();
-            ctx.set_contents(password.to_owned()).unwrap();
+            clipboard::copy(password);
             println!("「{}」 is copied!", key);
         }
         Some(Command::Delete { key }) => {
