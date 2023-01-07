@@ -14,8 +14,8 @@ struct Args {
 #[derive(StructOpt)]
 enum Command {
     List,
-    Add { password: String, description: String },
-    Delete { description: String },
+    Add { key: String, password: String },
+    Delete { key: String },
 }
 
 #[tokio::main]
@@ -29,13 +29,13 @@ async fn main() -> anyhow::Result<()> {
         Some(Command::List) => {
             database::lists(&pool).await?;
         }
-        Some(Command::Add { password, description}) => {
-            database::add(&pool, &password, &description).await?;
-            println!("「{}」 is added!", description);
+        Some(Command::Add { key, password }) => {
+            database::add(&pool, &key, &password).await?;
+            println!("「{}」 is added!", key);
         }
-        Some(Command::Delete { description }) => {
-            database::delete(&pool, &description).await?;
-            println!("「{}」 is deleted!", description);
+        Some(Command::Delete { key }) => {
+            database::delete(&pool, &key).await?;
+            println!("「{}」 is deleted!", key);
         }
         None => println!("Set arguments."),
     }

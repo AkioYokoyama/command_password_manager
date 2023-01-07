@@ -3,43 +3,44 @@ use sqlx::sqlite::{SqlitePool};
 pub(crate) async fn lists(pool: &SqlitePool) -> anyhow::Result<()> {
     let records = sqlx::query!(
         r#"
-            SELECT id, description FROM passwords ORDER BY id
+            SELECT id, key, password FROM passwords ORDER BY id
         "#
     ).fetch_all(pool)
     .await?;
 
     for record in records {
         println!(
-            "{} | {:?}",
+            "{} | {} | {}",
             record.id,
-            record.description,
+            record.key,
+            record.password,
         );
     }
 
     Ok(())
 }
 
-pub(crate) async fn add(pool: &SqlitePool, password: &str, description: &str) -> anyhow::Result<i64> {
+pub(crate) async fn add(pool: &SqlitePool, key: &str, password: &str) -> anyhow::Result<i64> {
     let mut conn = pool.acquire().await?;
     let id = sqlx::query!(
         r#"
-            INSERT INTO passwords (password, description) VALUES(?, ?)
+            INSERT INTO passwords (key, password) VALUES(?, ?)
         "#,
+        key,
         password,
-        description
     ).execute(&mut conn)
     .await?
     .last_insert_rowid();
     Ok(id)
 }
 
-pub(crate) async fn delete(pool: &SqlitePool, description: &str) -> anyhow::Result<()> {
+pub(crate) async fn delete(pool: &SqlitePool, key: &str) -> anyhow::Result<()> {
     let mut conn = pool.acquire().await?;
     let _ = sqlx::query!(
         r#"
-            DELETE FROM passwords WHERE description = ?
+            DELETE FROM passwords WHERE key = ?
         "#,
-        description,
+        key,
     ).execute(&mut conn)
     .await?
     .last_insert_rowid();
