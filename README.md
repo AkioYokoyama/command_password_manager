@@ -25,7 +25,7 @@ cargo build
 ```
 
 ## Usage
-Display list of registered sites.
+Display list of registered passwords.
 ```bash
 cargo run -- list
 ```
@@ -46,7 +46,7 @@ ex)
 cargo run -- delete github
 ```
 
-Copy one of the registered password.
+Copy the password specified by key to the clipboard.
 ```bash
 cargo run -- copy <key>
 

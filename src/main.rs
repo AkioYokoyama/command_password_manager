@@ -20,6 +20,7 @@ enum Command {
     Copy { key: String },
     Delete { key: String },
     Flush,
+    Help,
 }
 
 #[tokio::main]
@@ -50,6 +51,13 @@ async fn main() -> anyhow::Result<()> {
         Some(Command::Flush) => {
             database::truncate(&pool).await?;
             println!("passwords deleted!");
+        }
+        Some(Command::Help) => {
+            println!("-- list        : Display list of registered passwords.");
+            println!("-- add <key>   : Register a password.");
+            println!("-- copy <key>  : Copy the password specified by key to the clipboard.");
+            println!("-- delete <key>: Delete a registered password.");
+            println!("-- flush       : Remove all passwords.");
         }
         None => println!("Set arguments."),
     }
