@@ -2,6 +2,7 @@ use dotenvy::dotenv;
 use std::env;
 use sqlx::sqlite::{SqlitePool};
 use structopt::StructOpt;
+use std::io;
 
 pub(crate) mod database;
 
@@ -14,7 +15,7 @@ struct Args {
 #[derive(StructOpt)]
 enum Command {
     List,
-    Add { key: String, password: String },
+    Add { key: String },
     Delete { key: String },
 }
 
@@ -29,7 +30,8 @@ async fn main() -> anyhow::Result<()> {
         Some(Command::List) => {
             database::lists(&pool).await?;
         }
-        Some(Command::Add { key, password }) => {
+        Some(Command::Add { key }) => {
+            let password = read_buffer();
             database::add(&pool, &key, &password).await?;
             println!("「{}」 is added!", key);
         }
@@ -41,4 +43,12 @@ async fn main() -> anyhow::Result<()> {
     }
 
     Ok(())
+}
+
+fn read_buffer() -> String {
+    println!("> Enter the password.");
+
+    let mut buffer = String::new();
+    io::stdin().read_line(&mut buffer).expect("Failed to read line.");
+    return buffer.trim().to_string();
 }
