@@ -19,6 +19,7 @@ enum Command {
     Add { key: String },
     Copy { key: String },
     Delete { key: String },
+    Flush,
 }
 
 #[tokio::main]
@@ -46,6 +47,10 @@ async fn main() -> anyhow::Result<()> {
         Some(Command::Delete { key }) => {
             database::delete(&pool, &key).await?;
             println!("「{}」 is deleted!", key);
+        }
+        Some(Command::Flush) => {
+            database::truncate(&pool).await?;
+            println!("passwords deleted!");
         }
         None => println!("Set arguments."),
     }
