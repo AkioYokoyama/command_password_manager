@@ -59,3 +59,15 @@ pub(crate) async fn delete(pool: &SqlitePool, key: &str) -> anyhow::Result<()> {
 
     Ok(())
 }
+
+pub(crate) async fn truncate(pool: &SqlitePool) -> anyhow::Result<()> {
+    let mut conn = pool.acquire().await?;
+    let _ = sqlx::query!(
+        r#"
+            DELETE FROM passwords
+        "#,
+    ).execute(&mut conn)
+    .await?;
+
+    Ok(())
+}
