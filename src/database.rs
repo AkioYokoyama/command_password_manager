@@ -10,10 +10,10 @@ pub(crate) async fn lists(pool: &SqlitePool) -> anyhow::Result<()> {
 
     for record in records {
         println!(
-            "{} | {} | {}",
+            "{:<02} | {:<8} | {:*<8}",
             record.id,
             record.key,
-            record.password,
+            record.password.chars().nth(0).unwrap(),
         );
     }
 
