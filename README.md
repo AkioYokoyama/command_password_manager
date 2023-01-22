@@ -21,40 +21,40 @@ sqlx migrate run  --database-url "sqlite:db/passwords.db"
 
 Code is built.
 ```bash
-cargo build
+cargo build --release
 ```
 
 ## Usage
 Display list of registered passwords.
 ```bash
-cargo run -- list
+./target/release/command_password_manager list
 ```
 
 Register your password.
 ```bash
-cargo run -- add <key>
+./target/release/command_password_manager add <key>
 
 ex)
-cargo run -- add github
+./target/release/command_password_manager add github
 ```
 
 Delete a registered password.
 ```bash
-cargo run -- delete <key>
+./target/release/command_password_manager delete <key>
 
 ex)
-cargo run -- delete github
+./target/release/command_password_manager delete github
 ```
 
 Copy the password specified by key to the clipboard.
 ```bash
-cargo run -- copy <key>
+./target/release/command_password_manager copy <key>
 
 ex)
-cargo run -- copy github
+./target/release/command_password_manager copy github
 ```
 
 Remove all passwords
 ```bash
-cargo run -- flush
+./target/release/command_password_manager flush
 ```
